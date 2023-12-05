@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "target-elasticsearch"
+name = "target-opensearch"
 version = "1.0.2"
-description = "`target-elasticsearch` is a singer target using the meltano SDK for targets"
+description = "`target-opensearch` is a fork of target-elasticsearc"
 authors = ["DT Mirizzi <dtmirizzi@gmail.com>"]
 keywords = [
     "elasticsearch",
@@ -37,7 +37,7 @@ pre-commit = "^2.19.0"
 [tool.isort]
 profile = "black"
 multi_line_output = 3 # Vertical Hanging Indent
-src_paths = "target_elasticsearch"
+src_paths = "target_opensearch"
 
 [tool.black]
 line-length = 120
@@ -49,4 +49,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 # CLI declaration
-target-elasticsearch = 'target_elasticsearch.target:TargetElasticsearch.cli'
+target-opensearch = 'target_opensearch.target:TargetOpensearch.cli'

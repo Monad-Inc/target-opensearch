@@ -1,8 +1,8 @@
 from typing import Dict
 from singer_sdk import typing as th
 from singer_sdk.target_base import Target
-from target_elasticsearch import sinks
-from target_elasticsearch.common import (
+from target_opensearch import sinks
+from target_opensearch.common import (
     INDEX_FORMAT,
     SCHEME,
     HOST,
@@ -19,10 +19,10 @@ from target_elasticsearch.common import (
 )
 
 
-class TargetElasticsearch(Target):
+class TargetOpensearch(Target):
     """Sample target for parquet."""
 
-    name = "target-elasticsearch"
+    name = "target-opensearch"
     config_jsonschema = th.PropertiesList(
         th.Property(
             SCHEME,

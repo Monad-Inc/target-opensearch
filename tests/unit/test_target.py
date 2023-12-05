@@ -4,7 +4,7 @@ from unittest import mock
 
 import singer_sdk.io_base
 import time_machine
-from target_elasticsearch.sinks import template_index, build_fields
+from target_opensearch.sinks import template_index, build_fields
 
 
 def test_template_index():
@@ -70,6 +70,6 @@ def test_build_fields():
 
 
 class SinkTests(unittest.TestCase):
-    @mock.patch("target_elasticsearch.sinks.ElasticSink")
+    @mock.patch("target_opensearch.sinks.ElasticSink")
     def test_config(self, mock_es):
         pass

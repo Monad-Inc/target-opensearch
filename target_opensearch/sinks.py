@@ -11,7 +11,7 @@ from singer_sdk.sinks import BatchSink
 
 import datetime
 
-from target_elasticsearch.common import (
+from target_opensearch.common import (
     INDEX_FORMAT,
     SCHEME,
     HOST,
