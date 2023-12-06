@@ -1,13 +1,15 @@
-import elasticsearch
+
 import jinja2
 
 from typing import List, Dict, Optional, Union, Any, Tuple, Set
 
 import jsonpath_ng
 import singer_sdk.io_base
-from elasticsearch.helpers import bulk
 from singer_sdk import PluginBase
 from singer_sdk.sinks import BatchSink
+
+import opensearchpy
+from opensearchpy.helpers import bulk
 
 import datetime
 
@@ -153,7 +155,7 @@ class ElasticSink(BatchSink):
         for index in indices:
             try:
                 self.client.indices.create(index=index)
-            except elasticsearch.exceptions.RequestError as e:
+            except opensearchpy.exceptions.RequestError as e:
                 if e.error == "resource_already_exists_exception":
                     self.logger.debug("index already created skipping creation")
                 else:  # Other exception - raise it
@@ -171,12 +173,12 @@ class ElasticSink(BatchSink):
         self.create_indices(distinct_indices)
         return updated_records
 
-    def _authenticated_client(self) -> elasticsearch.Elasticsearch:
+    def _authenticated_client(self) -> opensearchpy.OpenSearch:
         """
-        _authenticated_client generates a newly authenticated elasticsearch client
+        _authenticated_client generates a newly authenticated opensearch client
         attempting to support all auth permutations and ssl concerns
         https://www.elastic.co/guide/en/elasticsearch/client/python-api/current/connecting.html
-        @return: elasticsearch.Elasticsearch
+        @return: opensearchpy.OpenSearch
         """
         config = {}
         scheme = self.config[SCHEME]
@@ -187,17 +189,15 @@ class ElasticSink(BatchSink):
         config["hosts"] = [f"{scheme}://{self.config[HOST]}:{self.config[PORT]}"]
 
         if USERNAME in self.config and PASSWORD in self.config:
-            config["basic_auth"] = (self.config[USERNAME], self.config[PASSWORD])
+            config["http_auth"] = (self.config[USERNAME], self.config[PASSWORD])
         elif API_KEY in self.config and API_KEY_ID in self.config:
             config["api_key"] = (self.config[API_KEY_ID], self.config[API_KEY])
         elif ENCODED_API_KEY in self.config:
             config["api_key"] = self.config[ENCODED_API_KEY]
-        elif BEARER_TOKEN in self.config:
-            config["bearer_auth"] = self.config[BEARER_TOKEN]
         else:
             self.logger.info("using default elastic search connection config")
 
-        return elasticsearch.Elasticsearch(**config)
+        return opensearchpy.OpenSearch(**config)
 
     def write_output(self, records):
         """
@@ -210,7 +210,7 @@ class ElasticSink(BatchSink):
         self.logger.debug(records)
         try:
             bulk(self.client, records)
-        except elasticsearch.helpers.BulkIndexError as e:
+        except opensearchpy.helpers.BulkIndexError as e:
             self.logger.error(e.errors)
 
     def process_batch(self, context: Dict[str, Any]) -> None:
@@ -224,7 +224,7 @@ class ElasticSink(BatchSink):
 
     def clean_up(self) -> None:
         """
-        clean_up closes the elasticsearch client
+        clean_up closes the opensearch client
         """
         self.logger.debug(f"Cleaning up sink for {self.stream_name}")
         self.client.close()
